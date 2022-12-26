@@ -11,7 +11,7 @@ Here's some example code demonstrating how this module is used:
     1142
 
     contributes
-    I changed again!
 
-    add another line for testing
+
+    after checkout, I modify again.
     -----------
