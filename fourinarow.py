@@ -39,9 +39,9 @@ def main():
 
     while True: #  运行一个玩家的回合
         # 显示棋盘并获取玩家的移动方向
-        displayBoard(gameBoard)
-        playerMove = getPlayerMove(playerTurn, gameBoard)
-        gameBoard[playerMove] = playerTurn
+        displayBoard(gameBoard)  # 每次落子前显示当前的棋盘
+        playerMove = getPlayerMove(playerTurn, gameBoard)  # 获取落子所在的行与列
+        gameBoard[playerMove] = playerTurn  # 将落子所在的位置标注是哪个Player放的
 
         # 检查是否取胜或者打平
         if isWinner(playerTurn, gameBoard):
