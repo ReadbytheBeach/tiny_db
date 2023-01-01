@@ -8,10 +8,12 @@ X, O, BLANK = 'X', 'O', '-' # 字符串值常量
 def main():
     """运行一局井字棋游戏"""
     print('Welcome to tic-tac-toe!')
+    """选择在普通井字棋棋盘 、 简化井字棋棋盘中二选一的可能性"""
     # if input('Use mini board? Y/N: ').lower().startswith('y'):
     #     gameBoard = MiniBoard()  # 创建一个井字棋棋盘对象
     # else:
     #     gameBoard = TTTBoard()  # 创建一个井字棋棋盘对象
+    """创建一个棋盘能自动的预测下一步获胜的棋盘"""
     gameBoard = HintBoard()   # 创建一个能自动预测下一步获胜的棋盘
     currentPlayer, nextPlayer = X, O # X 先行， O 后行
 
@@ -119,17 +121,19 @@ class HintBoard(TTTBoard):
             自动设置了往下走一步，遍历了所有的棋盘，找出可能再下一步取胜的可能
             """
             #  模拟玩家X移动到了该空格子
-            self._spaces = copy.copy(originalSpaces)
+            self._spaces = copy.deepcopy(originalSpaces)
             if self._spaces[space] == BLANK:
                 self._spaces[space] = X
             if self.isWinner(X):  # 调用了父类TTTBoard中的isWinner()方法
                 xCanWin = True
+                print('Xplayer space location is: ', space)
             #  模拟玩家O移动到了该空格子
-            self._spaces = copy.copy(originalSpaces)
+            self._spaces = copy.deepcopy(originalSpaces)
             if self._spaces[space] == BLANK:
                 self._spaces[space] = O
             if self.isWinner(O):  # 调用了父类TTTBoard中的isWinner()方法
                 oCanWin = True
+                print('Oplayer space location is: ', space)
         
         if xCanWin:
             boardStr += '\nX can win in one more move.'
