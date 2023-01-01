@@ -1,12 +1,16 @@
 # 一个OOP井字游戏
 
 All_SPACES = list('123456789')  # 井字棋棋盘字典的键
-X, O, BLANK = 'X', 'O', ' ' # 字符串值常量
+X, O, BLANK = 'X', 'O', '-' # 字符串值常量
+
 
 def main():
     """运行一局井字棋游戏"""
     print('Welcome to tic-tac-toe!')
-    gameBoard = TTTBoard()  # 创建一个井字棋棋盘对象
+    if input('Use mini board? Y/N: ').lower().startswith('y'):
+        gameBoard = MiniBoard()  # 创建一个井字棋棋盘对象
+    else:
+        gameBoard = TTTBoard()  # 创建一个井字棋棋盘对象
     currentPlayer, nextPlayer = X, O # X 先行， O 后行
 
     while True:
@@ -44,9 +48,9 @@ class TTTBoard:
         """返回棋盘的字符串表示"""
         return f'''
         {self._spaces['1']}|{self._spaces['2']}|{self._spaces['3']}  1 | 2 | 3
-        -+-+-
+        
         {self._spaces['4']}|{self._spaces['5']}|{self._spaces['6']}  4 | 5 | 6
-        -+-+-
+        
         {self._spaces['7']}|{self._spaces['8']}|{self._spaces['9']}  7 | 8 | 9'''
 
     def isValidSpace(self, space):
@@ -77,6 +81,26 @@ class TTTBoard:
         """将棋盘上的格子设置为标记符"""
         self._spaces[space] = player
 
+
+class MiniBoard(TTTBoard):
+    def getBoardStr(self):
+        """返回一个用文字表示的小键盘"""
+        # 将空格设为“.”
+        for space in All_SPACES:
+            if self._spaces == BLANK:
+                self._spaces[space] = '.'
+
+        boardStr = f'''
+        {self._spaces['1']}{self._spaces['2']}{self._spaces['3']}   123
+        {self._spaces['4']}{self._spaces['5']}{self._spaces['6']}   456
+        {self._spaces['7']}{self._spaces['8']}{self._spaces['9']}   789'''
+
+        # 将“.”需改回空格子
+        for space in All_SPACES:
+            if self._spaces[space] == ".":
+                self._spaces[space] = BLANK
+        
+        return boardStr
 
 if __name__=='__main__':
     main()  # 当模块被直接运行而非被引入时，调用main()
