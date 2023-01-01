@@ -1,4 +1,5 @@
 # 一个OOP井字游戏
+import copy
 
 All_SPACES = list('123456789')  # 井字棋棋盘字典的键
 X, O, BLANK = 'X', 'O', '-' # 字符串值常量
@@ -7,10 +8,11 @@ X, O, BLANK = 'X', 'O', '-' # 字符串值常量
 def main():
     """运行一局井字棋游戏"""
     print('Welcome to tic-tac-toe!')
-    if input('Use mini board? Y/N: ').lower().startswith('y'):
-        gameBoard = MiniBoard()  # 创建一个井字棋棋盘对象
-    else:
-        gameBoard = TTTBoard()  # 创建一个井字棋棋盘对象
+    # if input('Use mini board? Y/N: ').lower().startswith('y'):
+    #     gameBoard = MiniBoard()  # 创建一个井字棋棋盘对象
+    # else:
+    #     gameBoard = TTTBoard()  # 创建一个井字棋棋盘对象
+    gameBoard = HintBoard()   # 创建一个能自动预测下一步获胜的棋盘
     currentPlayer, nextPlayer = X, O # X 先行， O 后行
 
     while True:
@@ -101,6 +103,42 @@ class MiniBoard(TTTBoard):
                 self._spaces[space] = BLANK
         
         return boardStr
+
+    
+class HintBoard(TTTBoard):
+    def getBoardStr(self):
+        """返回一个带提示的, 用文字表示的棋盘"""
+        boardStr =  super().getBoardStr()  # 调用TTTBoard中的getBoardStr()方法
+
+        xCanWin = False
+        oCanWin = False
+        originalSpaces = self._spaces  # 将spaces备份
+        for space in All_SPACES:
+
+            """
+            自动设置了往下走一步，遍历了所有的棋盘，找出可能再下一步取胜的可能
+            """
+            #  模拟玩家X移动到了该空格子
+            self._spaces = copy.copy(originalSpaces)
+            if self._spaces[space] == BLANK:
+                self._spaces[space] = X
+            if self.isWinner(X):  # 调用了父类TTTBoard中的isWinner()方法
+                xCanWin = True
+            #  模拟玩家O移动到了该空格子
+            self._spaces = copy.copy(originalSpaces)
+            if self._spaces[space] == BLANK:
+                self._spaces[space] = O
+            if self.isWinner(O):  # 调用了父类TTTBoard中的isWinner()方法
+                oCanWin = True
+        
+        if xCanWin:
+            boardStr += '\nX can win in one more move.'
+        if oCanWin:
+            boardStr += '\nO can win in one more move.'
+        self._spaces = originalSpaces  # 返回现在的棋盘
+        return boardStr
+           
+
 
 if __name__=='__main__':
     main()  # 当模块被直接运行而非被引入时，调用main()
