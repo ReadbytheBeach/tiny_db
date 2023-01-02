@@ -1,5 +1,6 @@
 # 一个OOP井字游戏
 import copy
+import sys
 
 All_SPACES = list('123456789')  # 井字棋棋盘字典的键
 X, O, BLANK = 'X', 'O', '-' # 字符串值常量
@@ -7,14 +8,25 @@ X, O, BLANK = 'X', 'O', '-' # 字符串值常量
 
 def main():
     """运行一局井字棋游戏"""
-    print('Welcome to tic-tac-toe!')
+    
     """选择在普通井字棋棋盘 、 简化井字棋棋盘中二选一的可能性"""
     # if input('Use mini board? Y/N: ').lower().startswith('y'):
+    #     print('创建一个井字棋棋盘对象')
     #     gameBoard = MiniBoard()  # 创建一个井字棋棋盘对象
     # else:
-    #     gameBoard = TTTBoard()  # 创建一个井字棋棋盘对象
-    """创建一个棋盘能自动的预测下一步获胜的棋盘"""
-    gameBoard = HintBoard()   # 创建一个能自动预测下一步获胜的棋盘
+    #     print('创建一个标准井字棋棋盘对象')
+    #     gameBoard = TTTBoard()  # 创建一个标准井字棋棋盘对象
+    choose_board = input(' Use mini board input: 1\n Use hint board input: 2\n Use stand board input: 3\n')
+    if int(choose_board) == 1:
+        gameBoard = MiniBoard()  # 创建一个井字棋棋盘对象
+    elif int(choose_board) == 2:
+        gameBoard = HintBoard()
+    elif int(choose_board) == 3:
+        gameBoard = TTTBoard()
+    else:
+        print('Wrong input')
+        sys.exit()
+    
     currentPlayer, nextPlayer = X, O # X 先行， O 后行
 
     while True:
@@ -106,43 +118,107 @@ class MiniBoard(TTTBoard):
         
         return boardStr
 
-    
+
+# 原始的HintBoard(),用于做一步推测
 class HintBoard(TTTBoard):
     def getBoardStr(self):
-        """返回一个带提示的, 用文字表示的棋盘"""
+        '''返回一个带提示的, 用文字表示的棋盘'''
         boardStr =  super().getBoardStr()  # 调用TTTBoard中的getBoardStr()方法
 
         xCanWin = False
-        oCanWin = False
+        oCanWin = False  
+        goback_to_originalSpces = self._spaces  # 将spaces备份, 用于返回当下的棋盘状态
         originalSpaces = self._spaces  # 将spaces备份
         for space in All_SPACES:
 
-            """
+            '''
             自动设置了往下走一步，遍历了所有的棋盘，找出可能再下一步取胜的可能
-            """
+            '''
             #  模拟玩家X移动到了该空格子
             self._spaces = copy.deepcopy(originalSpaces)
             if self._spaces[space] == BLANK:
                 self._spaces[space] = X
             if self.isWinner(X):  # 调用了父类TTTBoard中的isWinner()方法
                 xCanWin = True
-                print('Xplayer space location is: ', space)
+                print('X player put: ', space, ' next move to win')  # 显示下一步走哪里可以赢得比赛， 平时需要注释掉这行，不然就耍赖了
+        
             #  模拟玩家O移动到了该空格子
             self._spaces = copy.deepcopy(originalSpaces)
             if self._spaces[space] == BLANK:
                 self._spaces[space] = O
             if self.isWinner(O):  # 调用了父类TTTBoard中的isWinner()方法
                 oCanWin = True
-                print('Oplayer space location is: ', space)
+                print('O player put: ', space, ' next move to win')  # 显示下一步走哪里可以赢得比赛， 平时需要注释掉这行，不然就耍赖了
         
         if xCanWin:
             boardStr += '\nX can win in one more move.'
         if oCanWin:
             boardStr += '\nO can win in one more move.'
+
+        
+    
         self._spaces = originalSpaces  # 返回现在的棋盘
         return boardStr
-           
+        
+
+
+"""
+自动检测X Player再走两步能获胜的情况
+class HintBoard(TTTBoard):
+    def getBoardStr(self):
+        '''返回一个带提示的, 用文字表示的棋盘'''
+        boardStr =  super().getBoardStr()  # 调用TTTBoard中的getBoardStr()方法
+
+        xCanWin = False
+        oCanWin = False  
+        next_xCanWin = False
+        goback_to_originalSpces = self._spaces  # 将spaces备份, 用于返回当下的棋盘状态
+        originalSpaces = self._spaces  # 将spaces备份
+        #  遍历所有的可能
+        for space in All_SPACES:
+
+            '''
+            自动设置了往下走一步，遍历了所有的棋盘，找出可能再下一步取胜的可能
+            '''
+            #  模拟玩家X移动到了该空格子
+            self._spaces = copy.deepcopy(originalSpaces)
+            if self._spaces[space] == BLANK:
+                self._spaces[space] = X
+            # 如果下一步X Player能获胜
+            if self.isWinner(X):    # 调用了父类TTTBoard中的isWinner()方法
+                xCanWin = True
+            # 如果下一步X Player不能获胜
+            else:   # not self.isWinner(X)
+                next_Spaces = self._spaces 
+                #  模拟玩家O走下一步移动, 遍历所有的可能
+                for space in All_SPACES:
+                    self._spaces = copy.deepcopy(next_Spaces)
+                    if self._spaces[space] == BLANK:
+                        self._spaces[space] = O
+                    # 如果下一步O Player能获胜
+                    if self.isWinner(O):
+                        oCanWin = True
+                    # 如果下一步O Player不能获胜    
+                    else:   # not self.isWinner(O)
+                        next_next_Spaces = self._spaces
+                        #  模拟玩家X Player走下下一步移动
+                        for space in All_SPACES:
+                            self._spaces = copy.deepcopy(next_next_Spaces)
+                            if self._spaces[space] == BLANK:
+                                self._spaces[space] = X
+                            # 如果下下一步X Player能获胜
+                            if self.isWinner(X):
+                                next_xCanWin = True
+                                print('X player can win in two more move location is: ', space)  # 显示下下一步走哪里可以赢得比赛， 平时需要注释掉这行，不然就耍赖了
+        
+        if next_xCanWin:
+            boardStr += '\nX can win in two more move.'
+
+        self._spaces = goback_to_originalSpces # 返回到当下的棋盘
+        return boardStr
+"""           
 
 
 if __name__=='__main__':
+    print('Welcome to tic-tac-toe!')
     main()  # 当模块被直接运行而非被引入时，调用main()
